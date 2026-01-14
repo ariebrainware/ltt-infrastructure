@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  basis-db:
+    build:
+      context: ./basis-data-ltt-db
+    container_name: basis-data-ltt-db
+    environment:
+      MYSQL_ROOT_PASSWORD: wifwiMkoqge3
+      MYSQL_DATABASE: basis_data_ltt
+      MYSQL_USER: ltt_dbadmin
+      MYSQL_PASSWORD: kivxir4xuwpI
+      TZ: Asia/Jakarta
+    volumes:
+      - ./basis-data-ltt/mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  basis-redis:
+    build:
+      context: ./basis-redis
+    container_name: basis-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis-data:/data
+
+  basis-backend:
+    build:
+      context: ./basis-data-ltt
+      args:
+        APPPORT: 19091
+        APPENV: local
+        GINMODE: debug
+        DBHOST: basis-db
+        DBPORT: 3306
+        DBNAME: basis_data_ltt
+        DBUSER: ltt_dbadmin
+        DBPASS: kivxir4xuwpI
+        REDIS_HOST: basis-redis
+        REDIS_PORT: 6379
+    container_name: basis-data-ltt
+    depends_on:
+      basis-db:
+        condition: service_healthy
+      basis-redis:
+        condition: service_healthy
+    ports:
+      - "19091:19091"
+    environment:
+      APPNAME: basis-data-ltt
+      APPPORT: "19091"
+      APPENV: local
+      GINMODE: debug
+      DBHOST: basis-db
+      DBPORT: "3306"
+      DBNAME: basis_data_ltt
+      DBUSER: ltt_dbadmin
+      DBPASS: kivxir4xuwpI
+      REDIS_HOST: basis-redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+
+  basis-fe:
+    image: node:20
+    container_name: basis-data-ltt-fe
+    working_dir: /app
+    volumes:
+      - ./basis-data-ltt-fe:/app:cached
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_HOST: "http://localhost:19091"
+    depends_on:
+      - basis-backend
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm exec next dev --turbopack -H 0.0.0.0 -p 3000"
+
+networks:
+  default:
+    name: basis-data-network
+
+volumes:
+  redis-data:

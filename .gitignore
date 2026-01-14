@@ -1,0 +1,7 @@
+basis-data-ltt/
+basis-data-ltt-db/
+basis-redis/
+basis-data-ltt-fe/
+ltt-file-service/
+ltt-inventory-db/
+ltt-inventory-service/
