@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: wifwiMkoqge3
       MYSQL_DATABASE: basis_data_ltt
       MYSQL_USER: ltt_dbadmin
-      MYSQL_PASSWORD: kivxir4xuwpI
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       TZ: Asia/Jakarta
     volumes:
       - ./basis-data-ltt/mysql-data:/var/lib/mysql
@@ -37,6 +37,8 @@ services:
       retries: 5
     volumes:
       - redis-data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
 
   basis-backend:
     build:
@@ -49,7 +51,7 @@ services:
         DBPORT: 3306
         DBNAME: basis_data_ltt
         DBUSER: ltt_dbadmin
-        DBPASS: kivxir4xuwpI
+        DBPASS: "${DBPASS}"
         REDIS_HOST: basis-redis
         REDIS_PORT: 6379
     container_name: basis-data-ltt
@@ -73,6 +75,7 @@ services:
       REDIS_HOST: basis-redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      APITOKEN: "${APITOKEN:-test-api-token}"
 
   basis-fe:
     image: node:20
@@ -85,6 +88,7 @@ services:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_HOST: "http://localhost:19091"
+      NEXT_PUBLIC_API_TOKEN: "${NEXT_PUBLIC_API_TOKEN:-test-api-token}"
     depends_on:
       - basis-backend
     command: sh -c "npm install -g pnpm && pnpm install && pnpm exec next dev --turbopack -H 0.0.0.0 -p 3000"
