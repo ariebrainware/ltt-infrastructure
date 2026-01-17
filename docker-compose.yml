@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   basis-db:
     build:
@@ -24,10 +22,14 @@ services:
   basis-redis:
     build:
       context: ./basis-redis
+      dockerfile: Dockerfile
+    image: basis-redis:local
     container_name: basis-redis
     restart: unless-stopped
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
