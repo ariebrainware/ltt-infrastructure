@@ -74,6 +74,8 @@ services:
       REDIS_PORT: "6379"
       REDIS_PASSWORD: "${REDIS_PASSWORD}"
       APITOKEN: "${APITOKEN:-test-api-token}"
+    volumes:
+      - ./basis-data-ltt/uploads:/app/uploads
 
   basis-fe:
     image: node:20

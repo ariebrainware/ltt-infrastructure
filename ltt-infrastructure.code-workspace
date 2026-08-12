@@ -3,6 +3,18 @@
 		{
 			"name": "ltt-infrastructure",
 			"path": "."
+		},
+		{
+			"name": "basis-data-ltt",
+			"path": "basis-data-ltt"
+		},
+		{
+			"name": "basis-data-ltt-fe",
+			"path": "basis-data-ltt-fe"
+		},
+		{
+			"name": "basis-redis",
+			"path": "basis-redis"
 		}
 	],
 	"settings": {}
